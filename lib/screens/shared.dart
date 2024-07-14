@@ -10,6 +10,6 @@ class Shared extends StatefulWidget {
 class _SharedState extends State<Shared> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return const Scaffold();
   }
 }

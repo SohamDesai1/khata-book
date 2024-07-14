@@ -20,7 +20,8 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar> {
         GoRouter.of(context).go('/');
         break;
       case 1:
-        GoRouter.of(context).go('/activities');
+        GoRouter.of(context).go('/shared');
+
         break;
       default:
     }
@@ -34,16 +35,18 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar> {
       bottomNavigationBar: BottomNavigationBar(
         elevation: 0,
         iconSize: 3.3.h,
-        backgroundColor: Colors.cyan,
-        unselectedItemColor: const Color.fromARGB(255, 0, 0, 128),
-        selectedItemColor: Colors.blue,
+        backgroundColor: const Color.fromARGB(255, 7, 65, 115),
+        unselectedItemColor: const Color.fromARGB(255, 22, 121, 171),
+        selectedItemColor: const Color.fromARGB(255, 93, 235, 215),
         onTap: (int val) => _itemTapped(val),
         currentIndex: selectedindex,
         items: const [
           BottomNavigationBarItem(
+            label: "Home",
             icon: Icon(Icons.home),
           ),
           BottomNavigationBarItem(
+            label: "Shared",
             icon: Icon(Icons.list_alt_sharp),
           ),
         ],
