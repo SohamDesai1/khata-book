@@ -46,7 +46,7 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar> {
             icon: Icon(Icons.home),
           ),
           BottomNavigationBarItem(
-            label: "Shared",
+            label: "Expenses",
             icon: Icon(Icons.list_alt_sharp),
           ),
         ],
