@@ -48,6 +48,9 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> saveToSupabase() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    bool hasSaved = false; // Track if any expense is saved
+
     try {
       // Get the current date
       final DateTime currentDate = DateTime.now();
@@ -63,20 +66,52 @@ class _HomeState extends State<Home> {
               await Supabase.instance.client.from('expenses').insert({
             'date': currentDate.toIso8601String(), // Save current date
             'name': name,
-            'amount': int.tryParse(amount) ?? 0, // Convert amount to double
+            'amount': int.tryParse(amount) ?? 0, // Convert amount to int
           }).select();
 
           if (response.isEmpty) {
-            // Handle error
-            log('Error saving to Supabase');
+            // Handle error if needed
+            log('Error saving to Supabase for item: $name');
           } else {
-            // Successfully saved
+            hasSaved = true; // Mark as saved
             log('Saved: $name, $amount');
           }
         }
       }
+
+      // Show the dialog once if any expense was saved successfully
+      if (hasSaved) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("Saved!"),
+              content: const Text("Expenses saved successfully"),
+              actions: [
+                ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text("OK"))
+              ],
+            );
+          },
+        );
+      }
     } catch (e) {
       // Handle any exceptions
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Error"),
+            content: const Text("Expenses not saved"),
+            actions: [
+              ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text("OK"))
+            ],
+          );
+        },
+      );
       log('Exception saving to Supabase: $e');
     }
   }
@@ -167,7 +202,8 @@ class _HomeState extends State<Home> {
             ),
             toshowb
                 ? ElevatedButton(
-                    onPressed: () => saveToSupabase(), child: const Text("Save"))
+                    onPressed: () => saveToSupabase(),
+                    child: const Text("Save"))
                 : const SizedBox.shrink()
           ],
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sizer/sizer.dart';
@@ -10,12 +11,16 @@ import 'models/expense.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final dir = await getApplicationDocumentsDirectory();
-  Hive.init(dir.path);
-  Hive.initFlutter('hive_db');
-  Hive.registerAdapter(ExpenseAdapter());
+  // final dir = await getApplicationDocumentsDirectory();
+  // Hive.init(dir.path);
+  // Hive.initFlutter('hive_db');
+  // Hive.registerAdapter(ExpenseAdapter());
+
   await dotenv.load(fileName: ".env");
-  await Supabase.initialize(url: dotenv.env['SUPABASE_PROJECT_URL']!, anonKey: dotenv.env['SUPABASE_API_KEY']!);
+
+  await Supabase.initialize(
+      url: dotenv.env['SUPABASE_PROJECT_URL']!,
+      anonKey: dotenv.env['SUPABASE_API_KEY']!);
   runApp(const ProviderScope(child: MyApp()));
 }
 
