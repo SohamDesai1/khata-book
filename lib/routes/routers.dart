@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 // import 'package:hisaab/screens/add_transaction.dart';
 import 'package:hisaab/screens/display.dart';
+import 'package:hisaab/screens/edit.dart';
 import '../widgets/bottom_navbar.dart';
 import '../screens/home.dart';
 import '../screens/shared.dart';
@@ -39,7 +40,16 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         name: 'Display',
         builder: (context, state) {
           final expenses = state.extra as List<Map<String, dynamic>>?;
-          return Display(expenses: expenses ?? []);
+          final date = state.uri.queryParameters['date']!;
+          return Display(expenses: expenses ?? [], date: date);
+        },
+      ),
+      GoRoute(
+        path: '/edit',
+        name: 'Edit',
+        builder: (context, state) {
+          final date = state.uri.queryParameters['date']!;
+          return Edit(date: date);
         },
       ),
     ],

@@ -30,10 +30,8 @@ class _SharedState extends ConsumerState<Shared> {
       } else {
         Map<String, List<Map<String, dynamic>>> groupedExpenses = {};
         for (var expense in response) {
-          final date = DateTime.parse(expense['created_at'])
-              .toLocal()
-              .toIso8601String()
-              .split('T')[0];
+          final date =
+              DateTime.parse(expense['date']).toIso8601String().split('T')[0];
           if (groupedExpenses.containsKey(date)) {
             groupedExpenses[date]!.add(expense);
           } else {
@@ -66,13 +64,11 @@ class _SharedState extends ConsumerState<Shared> {
             _selectedDay = selectedDay;
             _focusedDay = focusedDay;
           });
-          final selectedDate =
-              selectedDay.toLocal().toIso8601String().split('T')[0];
-
+          final selectedDate = selectedDay.toIso8601String().split('T')[0];
           var expense = await fetchAllExpenses();
           final expenses = expense[selectedDate] ?? [];
-
-          ref.read(goRouterProvider).pushNamed("Display", extra: expenses);
+          ref.read(goRouterProvider).pushNamed("Display",
+              extra: expenses, queryParameters: {'date': selectedDay.toIso8601String()});
         },
         shouldFillViewport: true,
         calendarFormat: CalendarFormat.month,
