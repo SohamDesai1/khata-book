@@ -4,8 +4,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hisaab/routes/routers.dart';
-import 'package:hisaab/screens/shared.dart';
-import 'package:hisaab/widgets/bottom_navbar.dart';
+// import 'package:hisaab/screens/shared.dart';
+// import 'package:hisaab/widgets/bottom_navbar.dart';
 import 'package:sizer/sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -47,10 +47,15 @@ class Display extends ConsumerWidget {
               itemCount: expenses.length,
               itemBuilder: (context, index) {
                 final expense = expenses[index];
-                log(expense['id'].toString());
                 return ListTile(
-                  title: Text(expense['name'] ?? 'Unnamed Item'),
-                  subtitle: Text('Amount: ${expense['amount'] ?? 0}'),
+                  title: Text(
+                    expense['name'] ?? 'Unnamed Item',
+                    style: TextStyle(fontSize: 2.h),
+                  ),
+                  subtitle: Text(
+                    'Amount: ${expense['amount'] ?? 0}',
+                    style: TextStyle(fontSize: 2.h),
+                  ),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () {
@@ -85,7 +90,7 @@ class Display extends ConsumerWidget {
           ),
           Text(
             'Total Expense: $totalExpense',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 4.h, fontWeight: FontWeight.bold),
           ),
         ],
       ),

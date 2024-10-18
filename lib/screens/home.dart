@@ -1,17 +1,20 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sizer/sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class Home extends StatefulWidget {
+class Home extends ConsumerStatefulWidget {
   const Home({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends ConsumerState<Home> {
   final TextEditingController _countController = TextEditingController();
   final Map<TextEditingController, Map<String, dynamic>> samaan = {};
   bool toshowb = false;
@@ -50,6 +53,7 @@ class _HomeState extends State<Home> {
   Future<void> saveToSupabase() async {
     FocusManager.instance.primaryFocus?.unfocus();
     bool hasSaved = false; // Track if any expense is saved
+    _countController.clear(); // Clear the count controller
 
     try {
       // Get the current date
@@ -79,8 +83,14 @@ class _HomeState extends State<Home> {
         }
       }
 
-      // Show the dialog once if any expense was saved successfully
+      // Clear the samaan map and text fields after saving
       if (hasSaved) {
+        setState(() {
+          samaan.clear(); // Clear the map
+          toshowb = false; // Hide the save button
+        });
+
+        // Show the dialog to indicate successful save
         showDialog(
           context: context,
           builder: (context) {
@@ -89,8 +99,11 @@ class _HomeState extends State<Home> {
               content: const Text("Expenses saved successfully"),
               actions: [
                 ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text("OK"))
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("OK"),
+                ),
               ],
             );
           },
@@ -106,8 +119,9 @@ class _HomeState extends State<Home> {
             content: const Text("Expenses not saved"),
             actions: [
               ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text("OK"))
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text("OK"),
+              ),
             ],
           );
         },

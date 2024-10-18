@@ -1,12 +1,9 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hisaab/routes/routers.dart';
-import 'package:hisaab/screens/display.dart';
-import 'package:intl/intl.dart';
-import 'package:sizer/sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class Shared extends ConsumerStatefulWidget {
   const Shared({super.key});
@@ -17,25 +14,23 @@ class Shared extends ConsumerStatefulWidget {
 
 class _SharedState extends ConsumerState<Shared> {
   Map<String, List<Map<String, dynamic>>> groupedExpenses = {};
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchAllExpenses();
-  }
-
-  // Fetch all expenses from the database
-  Future<void> _fetchAllExpenses() async {
+  Future<Map<String, List<Map<String, dynamic>>>> fetchAllExpenses() async {
     try {
       final response = await Supabase.instance.client
           .from('expenses')
           .select()
           .order('date', ascending: false);
+
       if (response.isEmpty) {
         log('Error fetching data');
+        return {}; // Return an empty map in case of error
       } else {
+        Map<String, List<Map<String, dynamic>>> groupedExpenses = {};
         for (var expense in response) {
-          final date = DateTime.parse(expense['date'])
+          final date = DateTime.parse(expense['created_at'])
               .toLocal()
               .toIso8601String()
               .split('T')[0];
@@ -45,68 +40,44 @@ class _SharedState extends ConsumerState<Shared> {
             groupedExpenses[date] = [expense];
           }
         }
-        setState(() {});
+        return groupedExpenses;
       }
     } catch (e) {
       log('Exception fetching data: $e');
+      return {};
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Expenses'),
-        ),
-        body: groupedExpenses.isNotEmpty
-            ? Center(
-                child: SizedBox(
-                  width: 60.w,
-                  height: 90.h,
-                  child: ListView.builder(
-                    itemCount: groupedExpenses.keys.length,
-                    itemBuilder: (context, index) {
-                      final date = groupedExpenses.keys.elementAt(index);
-                      final expenses = groupedExpenses[date];
-                      // log(groupedExpenses.toString());
-                      return Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              // Navigate to the detail page with the selected expense data
-                              ref
-                                  .read(goRouterProvider)
-                                  .pushNamed("Display", extra: expenses);
-                            },
-                            child: Container(
-                              // width: 10.w,
-                              height: 7.h,
-                              decoration: BoxDecoration(
-                                  color:
-                                      const Color.fromARGB(255, 118, 187, 255),
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: Center(
-                                child: Text(
-                                  'Expenses on ${DateFormat('d MMMM').format(DateTime.parse(date))}',
-                                  style: TextStyle(fontSize: 4.5.w),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 2.h,
-                          )
-                        ],
-                      );
-                    },
-                  ),
-                ),
-              )
-            : Center(
-                child: Text(
-                  "NO EXPENSES",
-                  style: TextStyle(fontSize: 4.5.w),
-                ),
-              ));
+      appBar: AppBar(
+        title: const Text('Expenses'),
+      ),
+      body: TableCalendar(
+        firstDay: DateTime.utc(2023, 10, 16),
+        lastDay: DateTime.utc(2030, 3, 14),
+        focusedDay: _focusedDay,
+        selectedDayPredicate: (day) {
+          return isSameDay(_selectedDay, day);
+        },
+        onDaySelected: (selectedDay, focusedDay) async {
+          setState(() {
+            _selectedDay = selectedDay;
+            _focusedDay = focusedDay;
+          });
+          final selectedDate =
+              selectedDay.toLocal().toIso8601String().split('T')[0];
+
+          var expense = await fetchAllExpenses();
+          final expenses = expense[selectedDate] ?? [];
+
+          ref.read(goRouterProvider).pushNamed("Display", extra: expenses);
+        },
+        shouldFillViewport: true,
+        calendarFormat: CalendarFormat.month,
+        onFormatChanged: (format) => CalendarFormat.week,
+      ),
+    );
   }
 }

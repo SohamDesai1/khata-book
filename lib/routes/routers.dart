@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hisaab/screens/add_transaction.dart';
+// import 'package:hisaab/screens/add_transaction.dart';
 import 'package:hisaab/screens/display.dart';
 import '../widgets/bottom_navbar.dart';
 import '../screens/home.dart';
@@ -9,17 +8,16 @@ import '../screens/shared.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: '/',  
+    initialLocation: '/',
     routes: [
-      GoRoute(
-        path: '/add_transaction',
-        name: "Add Transaction",
-        builder: (context, state) => Transaction(
-          key: state.pageKey,
-        ),
-      ),
+      // GoRoute(
+      //   path: '/add_transaction',
+      //   name: "Add Transaction",
+      //   builder: (context, state) => Transaction(
+      //     key: state.pageKey,
+      //   ),
+      // ),
       ShellRoute(
-
         builder: (context, state, child) => BottomNavBar(child: child),
         routes: [
           GoRoute(
