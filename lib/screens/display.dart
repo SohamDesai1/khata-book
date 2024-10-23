@@ -37,96 +37,97 @@ class Display extends ConsumerWidget {
     );
 
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Expense Details'),
-          iconTheme: const IconThemeData(color: Colors.black),
-        ),
-        body: expenses.isNotEmpty
-            ? Column(
-                children: [
-                  // Display the total expense
-                  SizedBox(
-                    height: 80.h,
-                    child: Scrollbar(
+      appBar: AppBar(
+        title: const Text('Expense Details'),
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
+      body: expenses.isNotEmpty
+          ? Column(
+              children: [
+                // Display the total expense
+                SizedBox(
+                  height: 80.h,
+                  child: Scrollbar(
+                    controller: scrollController,
+                    thumbVisibility: true,
+                    child: ListView.builder(
                       controller: scrollController,
-                      thumbVisibility: true,
-                      child: ListView.builder(
-                        controller: scrollController,
-                        itemCount: expenses.length,
-                        itemBuilder: (context, index) {
-                          final expense = expenses[index];
-                          return ListTile(
-                            title: Text(
-                              expense['name'] ?? 'Unnamed Item',
-                              style: TextStyle(fontSize: 2.h),
-                            ),
-                            subtitle: Text(
-                              'Amount: ${expense['amount'] ?? 0}',
-                              style: TextStyle(fontSize: 2.h),
-                            ),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                // Confirm deletion before deleting the expense
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text('Delete Expense'),
-                                    content: const Text(
-                                        'Are you sure you want to delete this expense?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(),
-                                        child: const Text('Cancel'),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          ref
-                                              .read(navigationProvider.notifier)
-                                              .setIndex(1);
-                                          ref
-                                              .read(goRouterProvider)
-                                              .goNamed("Shared");
-                                          _deleteExpense(
-                                              context,
-                                              expense[
-                                                  'id']); // Call delete function
-                                        },
-                                        child: const Text('Delete'),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          );
-                        },
-                      ),
+                      itemCount: expenses.length,
+                      itemBuilder: (context, index) {
+                        final expense = expenses[index];
+                        return ListTile(
+                          title: Text(
+                            expense['name'] ?? 'Unnamed Item',
+                            style: TextStyle(fontSize: 2.h),
+                          ),
+                          subtitle: Text(
+                            'Amount: ${expense['amount'] ?? 0}',
+                            style: TextStyle(fontSize: 2.h),
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              // Confirm deletion before deleting the expense
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Delete Expense'),
+                                  content: const Text(
+                                      'Are you sure you want to delete this expense?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
+                                      child: const Text('Cancel'),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        ref
+                                            .read(navigationProvider.notifier)
+                                            .setIndex(1);
+                                        ref
+                                            .read(goRouterProvider)
+                                            .goNamed("Shared");
+                                        _deleteExpense(
+                                            context,
+                                            expense[
+                                                'id']); // Call delete function
+                                      },
+                                      child: const Text('Delete'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
                     ),
                   ),
-                  Text(
-                    'Total Expense: $totalExpense',
-                    style:
-                        TextStyle(fontSize: 3.h, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              )
-            : Center(
-                child: Text(
-                  "No Expenses for this day!",
-                  style: TextStyle(fontSize: 3.h),
                 ),
+                Text(
+                  'Total Expense: $totalExpense',
+                  style: TextStyle(fontSize: 3.h, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  height: 1.h,
+                ),
+                expenses.isNotEmpty
+                    ? ElevatedButton(
+                        onPressed: () {
+                          ref.read(goRouterProvider).pushNamed('Edit',
+                              queryParameters: {'date': date});
+                        },
+                        child: const Text('Edit'))
+                    : const SizedBox.shrink()
+              ],
+            )
+          : Center(
+              child: Text(
+                "No Expenses for this day!",
+                style: TextStyle(fontSize: 3.h),
               ),
-        floatingActionButton: expenses.isNotEmpty
-            ? FloatingActionButton(
-                onPressed: () {
-                  ref
-                      .read(goRouterProvider)
-                      .pushNamed('Edit', queryParameters: {'date': date});
-                },
-                child: const Icon(Icons.edit),
-              )
-            : null);
+            ),
+    );
   }
 }
