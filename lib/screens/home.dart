@@ -1,11 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
-
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sizer/sizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../providers/user.dart';
+import 'dart:developer';
 
 class Home extends ConsumerStatefulWidget {
   const Home({super.key});
@@ -70,6 +69,7 @@ class _HomeState extends ConsumerState<Home> {
               await Supabase.instance.client.from('expenses').insert({
             'date': currentDate.toIso8601String(), // Save current date
             'name': name,
+            'username': ref.read(selectedUserProvider),
             'amount': int.tryParse(amount) ?? 0, // Convert amount to int
           }).select();
 
