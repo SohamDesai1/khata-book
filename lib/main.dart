@@ -2,12 +2,20 @@ import 'package:flutter/material.dart';
 // import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hisaab/providers/notification.dart';
 import 'package:sizer/sizer.dart';
 import 'routes/routers.dart';
 // import 'package:hive_flutter/hive_flutter.dart';
 // import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:hisaab/firebase_options.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 // import 'models/expense.dart';
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +30,41 @@ void main() async {
       url: dotenv.env['SUPABASE_PROJECT_URL']!,
       anonKey: dotenv.env['SUPABASE_API_KEY']!);
   runApp(const ProviderScope(child: MyApp()));
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await FirebaseMessaging.instance.requestPermission();
+
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+  const InitializationSettings initializationSettings =
+      InitializationSettings(android: initializationSettingsAndroid);
+
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+    // Handle notification tap
+    debugPrint('Notification clicked: ${response.payload}');
+  });
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundHandler);
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    debugPrint('Foreground message received: ${message.notification?.title}');
+
+    var ref = ProviderContainer();
+    NotificationRepo(ref as ProviderRef).showNotification(
+      message.notification?.title ?? 'New Transaction',
+      message.notification?.body ?? 'You have a new transaction',
+    );
+  });
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    var ref = ProviderContainer();
+    ref.read(goRouterProvider).go('/shared');
+  });
+}
+
+Future<void> _firebaseBackgroundHandler(RemoteMessage message) async {
+  debugPrint("Handling a background message: ${message.messageId}");
 }
 
 class MyApp extends ConsumerStatefulWidget {
