@@ -3,13 +3,22 @@ import 'package:go_router/go_router.dart';
 // import 'package:hisaab/screens/add_transaction.dart';
 import 'package:hisaab/screens/display.dart';
 import 'package:hisaab/screens/edit.dart';
+import 'package:hisaab/screens/select_user.dart';
 import '../widgets/bottom_navbar.dart';
 import '../screens/home.dart';
 import '../screens/shared.dart';
+import '../providers/user.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
+  final showPrompt = ref.watch(showUserSelectionPromptProvider);
   return GoRouter(
     initialLocation: '/',
+    redirect: (context, state) {
+      if (showPrompt) {
+        return '/select_user';
+      }
+      return null;
+    },
     routes: [
       // GoRoute(
       //   path: '/add_transaction',
@@ -18,6 +27,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       //     key: state.pageKey,
       //   ),
       // ),
+      GoRoute(
+          path: '/select_user',
+          name: "Select User",
+          builder: (context, state) {
+            return const UserSelection();
+          }),
       ShellRoute(
         builder: (context, state, child) => BottomNavBar(child: child),
         routes: [
