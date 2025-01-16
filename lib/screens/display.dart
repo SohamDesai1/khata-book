@@ -1,31 +1,16 @@
-// ignore_for_file: use_build_context_synchronously
-
-import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hisaab/providers/bottom_nav.dart';
-import 'package:hisaab/routes/routers.dart';
+import '../routes/routers.dart';
+import '../providers/bottom_nav.dart';
+import '../providers/supabase_ops.dart';
 // import 'package:hisaab/screens/shared.dart';
 // import 'package:hisaab/widgets/bottom_navbar.dart';
-import 'package:sizer/sizer.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Display extends ConsumerWidget {
   final List<Map<String, dynamic>> expenses;
   final String date;
   const Display({super.key, required this.expenses, required this.date});
-
-  // Function to delete an expense from Supabase
-  Future<void> _deleteExpense(BuildContext context, int id) async {
-    try {
-      await Supabase.instance.client.from('expenses').delete().eq('id', id);
-    } catch (e) {
-      log('Exception deleting expense: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error deleting expense: $e')),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -85,13 +70,13 @@ class Display extends ConsumerWidget {
                                         ref
                                             .read(navigationProvider.notifier)
                                             .setIndex(1);
-                                        ref
-                                            .read(goRouterProvider)
-                                            .goNamed("Shared");
-                                        _deleteExpense(
+                                        ref.read(supabaseProvider).deleteExpense(
                                             context,
                                             expense[
                                                 'id']); // Call delete function
+                                        ref
+                                            .read(goRouterProvider)
+                                            .goNamed("Shared");
                                       },
                                       child: const Text('Delete'),
                                     ),
