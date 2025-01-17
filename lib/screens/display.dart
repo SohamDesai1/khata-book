@@ -31,7 +31,7 @@ class Display extends ConsumerWidget {
               children: [
                 // Display the total expense
                 SizedBox(
-                  height: 80.h,
+                  height: 75.h,
                   child: Scrollbar(
                     controller: scrollController,
                     thumbVisibility: true,
@@ -40,51 +40,60 @@ class Display extends ConsumerWidget {
                       itemCount: expenses.length,
                       itemBuilder: (context, index) {
                         final expense = expenses[index];
-                        return ListTile(
-                          title: Text(
-                            expense['name'] ?? 'Unnamed Item',
-                            style: TextStyle(fontSize: 2.h),
-                          ),
-                          subtitle: Text(
-                            'Amount: ${expense['amount'] ?? 0}',
-                            style: TextStyle(fontSize: 2.h),
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () {
-                              // Confirm deletion before deleting the expense
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('Delete Expense'),
-                                  content: const Text(
-                                      'Are you sure you want to delete this expense?'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(),
-                                      child: const Text('Cancel'),
+                        return Column(
+                          children: [
+                            ListTile(
+                              title: Text(
+                                expense['name'] ?? 'Unnamed Item',
+                                style: TextStyle(fontSize: 2.h),
+                              ),
+                              subtitle: Text(
+                                'Amount: ${expense['amount'] ?? 0}',
+                                style: TextStyle(fontSize: 2.h),
+                              ),
+                              trailing: IconButton(
+                                icon:
+                                    const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () {
+                                  // Confirm deletion before deleting the expense
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('Delete Expense'),
+                                      content: const Text(
+                                          'Are you sure you want to delete this expense?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(),
+                                          child: const Text('Cancel'),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            ref
+                                                .read(
+                                                    navigationProvider.notifier)
+                                                .setIndex(1);
+                                            ref
+                                                .read(supabaseProvider)
+                                                .deleteExpense(
+                                                    context,
+                                                    expense[
+                                                        'id']); // Call delete function
+                                            ref
+                                                .read(goRouterProvider)
+                                                .goNamed("Shared");
+                                          },
+                                          child: const Text('Delete'),
+                                        ),
+                                      ],
                                     ),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        ref
-                                            .read(navigationProvider.notifier)
-                                            .setIndex(1);
-                                        ref.read(supabaseProvider).deleteExpense(
-                                            context,
-                                            expense[
-                                                'id']); // Call delete function
-                                        ref
-                                            .read(goRouterProvider)
-                                            .goNamed("Shared");
-                                      },
-                                      child: const Text('Delete'),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
+                                  );
+                                },
+                              ),
+                            ),
+                            const Divider()
+                          ],
                         );
                       },
                     ),
