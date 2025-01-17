@@ -139,4 +139,24 @@ class SupabaseOps {
       );
     }
   }
+
+  Future<List<String>> fetchAllExpensesDates() async {
+    try {
+      final response = await supabase
+          .from('expenses')
+          .select('date')
+          .order('date', ascending: false);
+      if (response.isEmpty) {
+        log('Error fetching data');
+        return [];
+      } else {
+        final dates =
+            response.map((expense) => expense['date'] as String).toList();
+        return dates;
+      }
+    } catch (e) {
+      log('Exception fetching data: $e');
+      return [];
+    }
+  }
 }
