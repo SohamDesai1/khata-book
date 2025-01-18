@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hisaab/routes/routers.dart';
 import 'package:sizer/sizer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../providers/bottom_nav.dart';
 
 class BottomNavBar extends ConsumerStatefulWidget {
@@ -13,15 +14,34 @@ class BottomNavBar extends ConsumerStatefulWidget {
 }
 
 class _BottomNavBarState extends ConsumerState<BottomNavBar> {
+  var isMummy = false;
+  @override
+  void initState() {
+    super.initState();
+    mummy();
+  }
+
+  Future<void> mummy() async {
+    final prefs = await SharedPreferences.getInstance();
+    var string = prefs.getString('selectedUser');
+    if (string == "Mummy") {
+      setState(() {
+        isMummy = true;
+      });
+    }
+  }
+
   void _itemTapped(int index) {
     ref.read(navigationProvider.notifier).setIndex(index);
     switch (index) {
       case 0:
-        GoRouter.of(context).go('/');
+        ref.read(goRouterProvider).go('/');
         break;
       case 1:
-        GoRouter.of(context).go('/shared');
-
+        ref.read(goRouterProvider).go('/shared');
+        break;
+      case 2:
+        ref.read(goRouterProvider).go('/mummy');
         break;
       default:
     }
@@ -30,6 +50,7 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     final selectedindex = ref.watch(navigationProvider);
+
     return Scaffold(
       body: widget.child,
       bottomNavigationBar: BottomNavigationBar(
@@ -40,15 +61,18 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar> {
         selectedItemColor: const Color.fromARGB(255, 93, 235, 215),
         onTap: (int val) => _itemTapped(val),
         currentIndex: selectedindex,
-        items: const [
-          BottomNavigationBarItem(
+        items: [
+          const BottomNavigationBarItem(
             label: "Home",
             icon: Icon(Icons.home),
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             label: "Expenses",
             icon: Icon(Icons.list_alt_sharp),
           ),
+          if (isMummy)
+            const BottomNavigationBarItem(
+                icon: Icon(Icons.person), label: "Personal Expenses"),
         ],
       ),
     );

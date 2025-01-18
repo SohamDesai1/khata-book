@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hisaab/screens/display.dart';
 import 'package:hisaab/screens/edit.dart';
 import 'package:hisaab/screens/select_user.dart';
+import 'package:hisaab/screens/mummy_expenses.dart';
 import '../widgets/bottom_navbar.dart';
 import '../screens/home.dart';
 import '../screens/shared.dart';
@@ -48,6 +49,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             name: "Shared",
             builder: (context, state) => Shared(key: state.pageKey),
           ),
+          GoRoute(
+              path: '/mummy',
+              name: 'Mummy',
+              builder: (context, state) => const ExpensesMummy()),
         ],
       ),
       GoRoute(
